@@ -31,6 +31,38 @@ services:
       - type: volume
         source: chromadb-data
         target: /chroma/chroma
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/heartbeat')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  chromadb-seed:
+    build: ./code/chromadb
+    container_name: chromadb-seed
+    command: ["python", "seeding.py"]
+    depends_on:
+      chromadb:
+        condition: service_healthy
+    environment:
+      - CHROMADB_HOST=chromadb
+      - CHROMADB_PORT=8000
+    volumes:
+      - ./code/chromadb/testpdf:/app/testpdf:ro
+      - type: volume
+        source: chromadb-onnx-cache
+        target: /root/.cache/chroma
+
+  chromadb-client:
+    build: ./code/chromadb
+    container_name: chromadb-client
+    command: ["python", "db.py"]
+    depends_on:
+      chromadb-seed:
+        condition: service_completed_successfully
+    environment:
+      - CHROMADB_HOST=chromadb
+      - CHROMADB_PORT=8000
 
   influxdb-seed:
     build: ./code/influxdb
@@ -65,3 +97,4 @@ volumes:
   influxdb2-data:
   influxdb2-config:
   chromadb-data:
+  chromadb-onnx-cache:
