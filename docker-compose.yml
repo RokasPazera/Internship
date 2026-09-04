@@ -22,6 +22,16 @@ services:
       - type: volume
         source: influxdb2-config
         target: /etc/influxdb2
+
+  influxdb-client:
+    build: ./code/influxdb
+    container_name: influxdb-client
+    depends_on:
+      - influxdb
+    env_file:
+      - ./code/.env
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
 secrets:
   influxdb2-admin-username:
     file: ~/.env.influxdb2-admin-username
