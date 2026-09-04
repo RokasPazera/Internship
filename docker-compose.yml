@@ -22,6 +22,15 @@ services:
       - type: volume
         source: influxdb2-config
         target: /etc/influxdb2
+  chromadb:
+    image: chromadb/chroma:0.5.20
+    container_name: chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: volume
+        source: chromadb-data
+        target: /chroma/chroma
 
   influxdb-client:
     build: ./code/influxdb
@@ -42,3 +51,4 @@ secrets:
 volumes:
   influxdb2-data:
   influxdb2-config:
+  chromadb-data:
