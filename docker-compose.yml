@@ -32,11 +32,24 @@ services:
         source: chromadb-data
         target: /chroma/chroma
 
+  influxdb-seed:
+    build: ./code/influxdb
+    container_name: influxdb-seed
+    command: ["python", "seeding.py"]
+    depends_on:
+      - influxdb
+    env_file:
+      - ./code/.env
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+
   influxdb-client:
     build: ./code/influxdb
     container_name: influxdb-client
+    command: ["python", "db.py"]
     depends_on:
-      - influxdb
+      influxdb-seed:
+        condition: service_completed_successfully
     env_file:
       - ./code/.env
     environment:

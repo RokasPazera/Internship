@@ -4,6 +4,6 @@ WORKDIR /app
 
 RUN pip install --no-cache-dir influxdb-client python-dotenv
 
-COPY db.py .
+COPY db.py seeding.py ./
 
 CMD ["python", "db.py"]
